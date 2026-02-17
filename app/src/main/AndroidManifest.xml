@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ConversorDeMonedasGrupo2">
         <activity
+            android:name=".HistorialActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ResultadoActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
