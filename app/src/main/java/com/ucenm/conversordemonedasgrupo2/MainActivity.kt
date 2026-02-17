@@ -80,16 +80,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun realizarConversion(monto: Double, origen: String, destino: String): Double {
-        val tasas = mapOf(
-            "USD" to 1.0,
-            "HNL" to 26.45,
-            "GTQ" to 7.73,
-            "NIO" to 36.62,
-            "CRC" to 510.20,
-            "SVC" to 8.75
-        )
-        val enDolares = monto / (tasas[origen] ?: 1.0)
-        val total = enDolares * (tasas[destino] ?: 1.0)
+        val db = DatabaseHelper(this)
+
+        // Si origen y destino son iguales, no hay cambio
+        if (origen == destino) return monto
+
+        // BUSCAMOS LA TASA EN LA TABLA 'rates' DE SQLITE
+        val tasa = db.obtenerTasaDeCambio(origen, destino)
+
+        val total = monto * tasa
         return String.format("%.2f", total).toDouble()
     }
 }
