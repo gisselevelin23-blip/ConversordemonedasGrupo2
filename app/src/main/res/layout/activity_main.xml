@@ -16,6 +16,7 @@
         android:layout_marginEnd="15dp"
         android:text="Convertir moneda Dolar a Centroamericana"
         android:textSize="24sp"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
