@@ -10,8 +10,9 @@
         android:id="@+id/tvMontoEnviado"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:text="Cargando..." />
+        android:textSize="20sp"
+        android:text="Cargando..."
+        />
 
     <TextView
         android:id="@+id/tvResultadoFinal"
@@ -26,7 +27,9 @@
         android:id="@+id/btnVolver"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="#271061"
         android:text="Volver"
+        android:textSize="20sp"
         android:layout_marginTop="30dp" />
 
 </LinearLayout>

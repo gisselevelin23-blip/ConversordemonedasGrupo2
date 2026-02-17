@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -30,14 +31,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 1. REFERENCIAS DE ELEMENTOS (Agrega btnVerHistorial aquí)
+        // 1. REFERENCIAS DE ELEMENTOS
         val etImporte = findViewById<EditText>(R.id.etImporte)
         val spOrigen = findViewById<Spinner>(R.id.spOrigen)
         val spDestino = findViewById<Spinner>(R.id.spDestino)
         val btnConvertir = findViewById<Button>(R.id.btnConvertir)
         val tvResultado = findViewById<TextView>(R.id.tvResultado)
-        // ESTA ES LA NUEVA REFERENCIA:
         val btnVerHistorial = findViewById<Button>(R.id.btnVerHistorial)
+
+        // BOTÓN DEL RETO ADICIONAL
+        val btnConfigurar = findViewById<Button>(R.id.btnConfigurarTasas)
 
         val listaMonedas = arrayOf("USD", "HNL", "GTQ", "NIO", "CRC", "SVC")
         val adaptador = ArrayAdapter(this, android.R.layout.simple_spinner_item, listaMonedas)
@@ -59,6 +62,7 @@ class MainActivity : AppCompatActivity() {
 
                 val resultado = realizarConversion(monto, monedaOrigen, monedaDestino)
 
+                // Guardamos en la base de datos
                 db.guardarHistorial(monedaOrigen, monedaDestino, monto, resultado)
 
                 tvResultado.text = "Resultado: $resultado $monedaDestino"
@@ -72,23 +76,58 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 3. LÓGICA DEL NUEVO BOTÓN (Agrégalo aquí al final del onCreate)
+        // 3. LÓGICA DEL BOTÓN HISTORIAL
         btnVerHistorial.setOnClickListener {
             val intent = Intent(this, HistorialActivity::class.java)
             startActivity(intent)
+        }
+
+        // 4. LÓGICA DEL RETO ADICIONAL (Configurar Tasas)
+        btnConfigurar.setOnClickListener {
+            mostrarDialogoConfiguracion()
         }
     }
 
     private fun realizarConversion(monto: Double, origen: String, destino: String): Double {
         val db = DatabaseHelper(this)
-
-        // Si origen y destino son iguales, no hay cambio
         if (origen == destino) return monto
 
-        // BUSCAMOS LA TASA EN LA TABLA 'rates' DE SQLITE
+        // BUSCAMOS LA TASA EN LA TABLA 'rates'
         val tasa = db.obtenerTasaDeCambio(origen, destino)
 
         val total = monto * tasa
         return String.format("%.2f", total).toDouble()
+    }
+
+    // FUNCIÓN PARA EL RETO ADICIONAL: TASAS PERSONALIZADAS
+    private fun mostrarDialogoConfiguracion() {
+        val builder = android.app.AlertDialog.Builder(this)
+        builder.setTitle("Configurar Tasa Personalizada")
+
+        val monedaOrigen = findViewById<Spinner>(R.id.spOrigen).selectedItem.toString()
+        val monedaDestino = findViewById<Spinner>(R.id.spDestino).selectedItem.toString()
+
+        builder.setMessage("Ingrese la nueva tasa para $monedaOrigen a $monedaDestino:")
+
+        val input = EditText(this)
+        input.inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        input.hint = "Ejemplo: 24.65"
+        builder.setView(input)
+
+        builder.setPositiveButton("Guardar") { _, _ ->
+            val nuevaTasaTexto = input.text.toString()
+            val nuevaTasa = nuevaTasaTexto.toDoubleOrNull()
+            if (nuevaTasa != null) {
+                val db = DatabaseHelper(this)
+                // Actualizamos en SQLite
+                db.actualizarTasa(monedaOrigen, monedaDestino, nuevaTasa)
+                Toast.makeText(this, "Tasa actualizada correctamente", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Valor no válido", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        builder.setNegativeButton("Cancelar", null)
+        builder.show()
     }
 }

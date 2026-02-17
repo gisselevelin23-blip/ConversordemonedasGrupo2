@@ -13,8 +13,8 @@
         android:textStyle="bold"
         android:layout_marginBottom="16dp"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvHistorial"
+    <ListView
+        android:id="@+id/lvHistorial"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
